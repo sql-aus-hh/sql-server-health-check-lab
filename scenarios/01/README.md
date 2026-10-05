@@ -39,20 +39,11 @@ Nicht alles soll schlecht sein:
 - [Cleanup.sql](Cleanup.sql) setzt die Lab-VM auf den definierten Baseline-Zustand zurueck.
 - Die Aufloesung liegt getrennt unter [solutions/01-build-setup-review.md](../../solutions/01-build-setup-review.md).
 
-## Voraussetzungen
+## Voraussetzung
 
-Dieses Szenario setzt das Common Setup des Repositories voraus.
+> **Prerequisite: Common Setup successfully validated.**
 
-Erwartete Lab-Struktur:
-
-- SQL Server 2025 Developer
-- 2 vCPU
-- 8 GiB RAM
-- `D:\SQLTempDB`
-- `E:\SQLData`
-- `F:\SQLLog`
-- `G:\SQLBackup`
-- Datenbank `WorkshopLab`
+Siehe [Common Setup](../../setup/).
 
 ## Wichtiger Hinweis zu TempDB und Default Paths
 
