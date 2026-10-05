@@ -29,26 +29,37 @@ EXEC sys.sp_configure N'optimize for ad hoc workloads', 1;
 RECONFIGURE;
 
 -------------------------------------------------------------------------------
--- 2. WorkshopLab baseline
+-- 2. Recreate WorkshopLab exactly as defined by the Common Setup
+--
+-- This is a disposable lab database. Recreating it keeps the cleanup
+-- deterministic even if participants generated data during troubleshooting.
 -------------------------------------------------------------------------------
 IF DB_ID(N'WorkshopLab') IS NOT NULL
 BEGIN
-    ALTER DATABASE [WorkshopLab] SET AUTO_CLOSE OFF;
-    ALTER DATABASE [WorkshopLab] SET AUTO_SHRINK OFF;
-    ALTER DATABASE [WorkshopLab] SET PAGE_VERIFY CHECKSUM;
-    ALTER DATABASE [WorkshopLab] SET RECOVERY SIMPLE;
+    ALTER DATABASE [WorkshopLab] SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+    DROP DATABASE [WorkshopLab];
+END;
 
-    DECLARE @sql nvarchar(max) = N'';
+CREATE DATABASE [WorkshopLab]
+ON PRIMARY
+(
+    NAME = N'WorkshopLab',
+    FILENAME = N'E:\SQLData\WorkshopLab.mdf',
+    SIZE = 256MB,
+    FILEGROWTH = 256MB
+)
+LOG ON
+(
+    NAME = N'WorkshopLab_log',
+    FILENAME = N'F:\SQLLog\WorkshopLab_log.ldf',
+    SIZE = 256MB,
+    FILEGROWTH = 256MB
+);
 
-    SELECT @sql +=
-        N'ALTER DATABASE [WorkshopLab] MODIFY FILE (NAME = N''' +
-        REPLACE(name,'''','''''') +
-        N''', FILEGROWTH = 256MB);' + CHAR(13) + CHAR(10)
-    FROM sys.master_files
-    WHERE database_id = DB_ID(N'WorkshopLab');
-
-    EXEC sys.sp_executesql @sql;
-END
+ALTER DATABASE [WorkshopLab] SET AUTO_CLOSE OFF;
+ALTER DATABASE [WorkshopLab] SET AUTO_SHRINK OFF;
+ALTER DATABASE [WorkshopLab] SET PAGE_VERIFY CHECKSUM;
+ALTER DATABASE [WorkshopLab] SET RECOVERY SIMPLE;
 
 -------------------------------------------------------------------------------
 -- 3. Restore instance default paths
