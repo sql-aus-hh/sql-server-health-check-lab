@@ -128,12 +128,30 @@ CREATE TABLE dbo.SalesOrder
 
 PRINT 'Loading 1,200,000 SalesOrder rows...';
 
-;WITH Numbers AS
+;WITH E1(n) AS
+(
+    SELECT 1
+    FROM (VALUES
+        (0),(0),(0),(0),(0),(0),(0),(0),(0),(0)
+    ) v(n)
+),
+E2(n) AS
+(
+    SELECT 1 FROM E1 a CROSS JOIN E1 b
+),
+E4(n) AS
+(
+    SELECT 1 FROM E2 a CROSS JOIN E2 b
+),
+E8(n) AS
+(
+    SELECT 1 FROM E4 a CROSS JOIN E4 b
+),
+Numbers AS
 (
     SELECT TOP (1200000)
         ROW_NUMBER() OVER (ORDER BY (SELECT NULL)) AS n
-    FROM sys.all_objects AS a
-    CROSS JOIN sys.all_objects AS b
+    FROM E8
 )
 INSERT dbo.SalesOrder
 (
