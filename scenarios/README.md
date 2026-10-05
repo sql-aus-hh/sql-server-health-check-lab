@@ -32,11 +32,15 @@ Leitfrage:
 
 **Status:** umgesetzt.
 
-## Scenario 04 - Troubleshooting
+## Scenario 04 - Troubleshooting / Diagnose unter Druck
 
-[Scenario 04](04/) wird den Weg von Symptom ueber Evidenz zur Ursache abbilden.
+[Scenario 04](04/) kombiniert zwei reproduzierbare Troubleshooting-Tracks: Blocking/Locking sowie Execution Plan, Missing Index und Query-Store-Vergleich.
 
-**Status:** in Vorbereitung.
+Leitfrage:
+
+> Welcher Befund erklaert das konkrete Symptom wirklich?
+
+**Status:** umgesetzt.
 
 ## Einheitlicher Aufbau
 
