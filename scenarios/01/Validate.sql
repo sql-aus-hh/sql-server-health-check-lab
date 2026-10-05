@@ -152,6 +152,22 @@ SELECT
 -------------------------------------------------------------------------------
 INSERT @Results
 SELECT
+    N'TempDB file count',
+    N'3',
+    CONVERT(nvarchar(50), COUNT(*)),
+    CASE WHEN COUNT(*) = 3 THEN 'PASS' ELSE 'FAIL' END
+FROM tempdb.sys.database_files;
+
+INSERT @Results
+SELECT
+    N'TempDB size - ' + name,
+    N'8 MB',
+    CONVERT(nvarchar(50), size * 8 / 1024) + N' MB',
+    CASE WHEN size = 1024 THEN 'PASS' ELSE 'FAIL' END
+FROM tempdb.sys.database_files;
+
+INSERT @Results
+SELECT
     N'TempDB path - ' + name,
     N'C:\...',
     physical_name,
