@@ -194,6 +194,10 @@ Das kann der aktuelle Plan Cache allein nicht verlaesslich beantworten.
 
 # Fix
 
+Ein ausfuehrbares Solution-Skript liegt unter:
+
+[04-fix-and-verify.sql](04-fix-and-verify.sql)
+
 Fuer dieses reproduzierbare Lab ist der passende Index bekannt:
 
 ~~~sql
