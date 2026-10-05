@@ -99,6 +99,14 @@ Im Lab sollen mindestens folgende Fragen beantwortet werden:
 9. Welche INCLUDE-Spalten sind wirklich notwendig?
 10. Wie wird der Fix nachher verifiziert?
 
+## Voraussetzung
+
+> **Prerequisite: Common Setup successfully validated.**
+
+Siehe [Common Setup](../../setup/).
+
+Das optionale **Query Store Hint Add-on** benoetigt **SQL Server 2022 oder neuer**.
+
 ## Ablauf
 
 Zuerst [Setup.sql](Setup.sql) ausfuehren und danach [Validate.sql](Validate.sql).
