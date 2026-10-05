@@ -76,7 +76,7 @@ Unter anderem:
 - ein deaktivierter CHECKDB-Job
 - ein Maintenance-Job, der `DBCC SHRINKDATABASE` enthaelt
 - ein Operator mit einer nicht produktionsfaehigen Beispieladresse
-- ein SQL Login mit deaktivierter Password Policy und `sysadmin`
+- `TRUSTWORTHY = ON` bei `LegacyReporting`
 
 Nicht jedes Finding ist gleich wichtig.
 
