@@ -22,11 +22,15 @@ Leitfrage:
 
 **Status:** umgesetzt.
 
-## Scenario 03 - Health Check
+## Scenario 03 - Health Check / Assess, Don't Assume
 
-[Scenario 03](03/) wird die systematische Bewertung einer bestehenden Umgebung abbilden.
+[Scenario 03](03/) bildet einen Health Check mit gemischten Findings ab. Die Aufgabe ist nicht, moeglichst viele Abweichungen zu finden, sondern sie im Kontext zu bewerten und zu priorisieren.
 
-**Status:** in Vorbereitung.
+Leitfrage:
+
+> Ist diese Umgebung gesund genug fuer den Betrieb?
+
+**Status:** umgesetzt.
 
 ## Scenario 04 - Troubleshooting
 
