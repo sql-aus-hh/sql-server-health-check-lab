@@ -192,6 +192,108 @@ Damit kann Query Store die entscheidende historische Frage beantworten:
 
 Das kann der aktuelle Plan Cache allein nicht verlaesslich beantworten.
 
+# Optional Add-on - Query Store Hint ohne Codeaenderung
+
+Nach der eigentlichen Plananalyse kann Query Store noch einen Schritt weiter gehen.
+
+Query Store ist nicht nur historische Evidenz. Seit SQL Server 2022 kann fuer eine bereits erfasste Query ein **Query Store Hint** hinterlegt werden, ohne den Anwendungscode zu veraendern.
+
+Im Lab:
+
+~~~sql
+EXEC sys.sp_query_store_set_hints
+    @query_id = @QueryId,
+    @query_hints = N'OPTION(MAXDOP 2)';
+~~~
+
+Die Anwendung fuehrt weiterhin exakt denselben SQL-Text aus. Der Hint wird ueber die Query-Store-`query_id` zugeordnet.
+
+Der gesetzte Hint kann ueber folgende View kontrolliert werden:
+
+~~~sql
+SELECT
+    query_hint_id,
+    query_id,
+    query_hint_text,
+    last_query_hint_failure_reason,
+    last_query_hint_failure_reason_desc,
+    query_hint_failure_count,
+    source_desc
+FROM sys.query_store_query_hints
+WHERE query_id = @QueryId;
+~~~
+
+Im Execution-Plan-XML koennen bei einem angewendeten Query Store Hint unter anderem folgende Attribute sichtbar sein:
+
+~~~text
+QueryStoreStatementHintText
+QueryStoreStatementHintId
+QueryStoreStatementHintSource
+~~~
+
+Das ist ein sehr guter Nachweis dafuer, dass der Hint nicht aus dem Anwendungstext stammt.
+
+## Query Store Hint vs. Forced Plan
+
+Diese beiden Mechanismen beantworten unterschiedliche Fragen:
+
+~~~text
+Forced Plan
+→ Verwende einen bereits bekannten konkreten Execution Plan.
+
+Query Store Hint
+→ Optimiere die Query weiterhin neu,
+  aber unter einer zusaetzlichen Query-Level-Vorgabe.
+~~~
+
+`OPTION(MAXDOP 2)` bedeutet deshalb nicht:
+
+> Benutze Plan 17.
+
+Sondern:
+
+> Der Optimizer darf weiterhin einen Plan erzeugen, aber fuer diese Query gilt die zusaetzliche MAXDOP-Vorgabe.
+
+## Warum MAXDOP 2 im Lab nicht zwingend spektakulaer aussieht
+
+Die Common Baseline der Test-VM verwendet bereits:
+
+~~~text
+MAXDOP = 2
+~~~
+
+Damit ist der Query Store Hint fachlich korrekt demonstrierbar, muss aber nicht zu einem sichtbar anderen DOP fuehren.
+
+Fuer eine Live-Demo kann derselbe Mechanismus testweise mit:
+
+~~~sql
+EXEC sys.sp_query_store_set_hints
+    @query_id = @QueryId,
+    @query_hints = N'OPTION(MAXDOP 1)';
+~~~
+
+gezeigt werden.
+
+Ein erneuter Aufruf von `sys.sp_query_store_set_hints` fuer dieselbe `query_id` ersetzt die vorherige Hint-Definition.
+
+## Hint wieder entfernen
+
+~~~sql
+EXEC sys.sp_query_store_clear_hints
+    @query_id = @QueryId;
+~~~
+
+Das entfernt alle Query Store Hints fuer diese `query_id`.
+
+Die beiden ausfuehrbaren Add-on-Skripte liegen unter:
+
+~~~text
+scenarios/04/07-QueryStore-Hint-MAXDOP.sql
+scenarios/04/08-QueryStore-Hint-Cleanup.sql
+~~~
+
+Wichtig fuer die Praxis: Ein Hint ist ein gezielter Eingriff in die Optimierung. Er sollte wie jede andere Performance-Aenderung begruendet, getestet und spaeter erneut bewertet werden.
+
 # Fix
 
 Ein ausfuehrbares Solution-Skript liegt unter:
