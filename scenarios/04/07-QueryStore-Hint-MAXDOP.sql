@@ -99,6 +99,24 @@ SELECT
 FROM sys.query_store_query_hints
 WHERE query_id = @QueryId;
 
+IF NOT EXISTS
+(
+    SELECT 1
+    FROM sys.query_store_query_hints
+    WHERE query_id = @QueryId
+      AND query_hint_text = N'OPTION(MAXDOP 2)'
+)
+    THROW 54102, 'Expected Query Store Hint OPTION(MAXDOP 2) was not stored.', 1;
+
+IF EXISTS
+(
+    SELECT 1
+    FROM sys.query_store_query_hints
+    WHERE query_id = @QueryId
+      AND last_query_hint_failure_reason IS NOT NULL
+)
+    THROW 54103, 'Query Store Hint reports an application failure. Review sys.query_store_query_hints.', 1;
+
 -------------------------------------------------------------------------------
 -- 5. Execute the SAME application query again
 --
