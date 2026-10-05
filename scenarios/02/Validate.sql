@@ -60,6 +60,15 @@ LEFT JOIN sys.databases d ON d.name = N'WorkshopOps_Audit';
 
 INSERT @Results
 SELECT
+    N'WorkshopOps_Audit recovery model',
+    N'FULL',
+    COALESCE(recovery_model_desc, N'<missing>'),
+    CASE WHEN recovery_model_desc = N'FULL' THEN 'PASS' ELSE 'FAIL' END
+FROM (VALUES (1)) x(dummy)
+LEFT JOIN sys.databases d ON d.name = N'WorkshopOps_Audit';
+
+INSERT @Results
+SELECT
     N'WorkshopLab_Restore absent before exercise',
     N'ABSENT',
     CASE WHEN DB_ID(N'WorkshopLab_Restore') IS NULL THEN N'ABSENT' ELSE N'PRESENT' END,
@@ -258,7 +267,7 @@ LEFT JOIN msdb.dbo.sysjobs j
     ON j.name = @JobName;
 
 INSERT @Results
-SELECT TOP (1)
+SELECT
     N'SQL Agent job last outcome',
     N'SUCCEEDED',
     CASE h.run_status
@@ -267,15 +276,20 @@ SELECT TOP (1)
         WHEN 2 THEN N'RETRY'
         WHEN 3 THEN N'CANCELED'
         WHEN 4 THEN N'IN PROGRESS'
-        ELSE N'<unknown>'
+        ELSE N'<no job history>'
     END,
     CASE WHEN h.run_status = 1 THEN 'PASS' ELSE 'FAIL' END
-FROM msdb.dbo.sysjobs j
-JOIN msdb.dbo.sysjobhistory h
-  ON h.job_id = j.job_id
- AND h.step_id = 0
-WHERE j.name = @JobName
-ORDER BY h.instance_id DESC;
+FROM (VALUES (1)) x(dummy)
+LEFT JOIN msdb.dbo.sysjobs j
+    ON j.name = @JobName
+OUTER APPLY
+(
+    SELECT TOP (1) h2.run_status
+    FROM msdb.dbo.sysjobhistory h2
+    WHERE h2.job_id = j.job_id
+      AND h2.step_id = 0
+    ORDER BY h2.instance_id DESC
+) h;
 
 INSERT @Results
 SELECT
