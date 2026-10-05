@@ -28,6 +28,9 @@ SET XACT_ABORT ON;
 
 PRINT 'Scenario 01 - applying instance configuration...';
 
+IF (SELECT COUNT(*) FROM tempdb.sys.database_files) <> 3
+    THROW 51002, 'Scenario 01 expects exactly three TempDB files (two data files plus one log file). Run the Common Setup first.', 1;
+
 -------------------------------------------------------------------------------
 -- 1. Instance configuration
 -------------------------------------------------------------------------------
@@ -178,6 +181,11 @@ BEGIN
         SET @TempSql = N'USE [tempdb]; DBCC SHRINKFILE (N''' +
                        REPLACE(@ShrinkName,'''','''''') +
                        N''', 8) WITH NO_INFOMSGS;';
+        EXEC sys.sp_executesql @TempSql;
+
+        SET @TempSql = N'ALTER DATABASE [tempdb] MODIFY FILE (NAME = N''' +
+                       REPLACE(@ShrinkName,'''','''''') +
+                       N''', SIZE = 8MB, FILEGROWTH = 1MB);';
         EXEC sys.sp_executesql @TempSql;
     END TRY
     BEGIN CATCH
