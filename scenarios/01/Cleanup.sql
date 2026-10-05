@@ -51,7 +51,7 @@ BEGIN
 END
 
 -------------------------------------------------------------------------------
--- 3. Restore default Data / Log paths
+-- 3. Restore instance default paths
 -------------------------------------------------------------------------------
 EXEC master.dbo.xp_instance_regwrite
     N'HKEY_LOCAL_MACHINE',
@@ -67,49 +67,75 @@ EXEC master.dbo.xp_instance_regwrite
     REG_SZ,
     N'F:\SQLLog\';
 
+EXEC master.dbo.xp_instance_regwrite
+    N'HKEY_LOCAL_MACHINE',
+    N'Software\Microsoft\MSSQLServer\MSSQLServer',
+    N'BackupDirectory',
+    REG_SZ,
+    N'G:\SQLBackup\';
+
 -------------------------------------------------------------------------------
--- 4. Restore TempDB to D:\SQLTempDB
+-- 4. Restore TempDB exactly to the Common Setup baseline
 -------------------------------------------------------------------------------
-DECLARE
-    @TempName sysname,
-    @TempType int,
-    @TargetPath nvarchar(4000),
-    @Extension nvarchar(10),
-    @TempSql nvarchar(max);
+IF NOT EXISTS
+(
+    SELECT 1
+    FROM tempdb.sys.database_files
+    WHERE name = N'tempdev'
+      AND type = 0
+)
+    THROW 51010, 'Expected TempDB file tempdev is missing.', 1;
 
-DECLARE TempFiles CURSOR LOCAL FAST_FORWARD FOR
-SELECT name, type
-FROM tempdb.sys.database_files
-ORDER BY file_id;
+IF NOT EXISTS
+(
+    SELECT 1
+    FROM tempdb.sys.database_files
+    WHERE name = N'tempdev2'
+      AND type = 0
+)
+    THROW 51011, 'Expected TempDB file tempdev2 is missing.', 1;
 
-OPEN TempFiles;
-FETCH NEXT FROM TempFiles INTO @TempName, @TempType;
+IF NOT EXISTS
+(
+    SELECT 1
+    FROM tempdb.sys.database_files
+    WHERE name = N'templog'
+      AND type = 1
+)
+    THROW 51012, 'Expected TempDB file templog is missing.', 1;
 
-WHILE @@FETCH_STATUS = 0
-BEGIN
-    SET @Extension =
-        CASE
-            WHEN @TempType = 1 THEN N'.ldf'
-            WHEN @TempName = N'tempdev' THEN N'.mdf'
-            ELSE N'.ndf'
-        END;
+ALTER DATABASE [tempdb]
+MODIFY FILE
+(
+    NAME = N'tempdev',
+    FILENAME = N'D:\SQLTempDB\tempdb.mdf',
+    SIZE = 256MB,
+    FILEGROWTH = 256MB
+);
 
-    SET @TargetPath = N'D:\SQLTempDB\' + @TempName + @Extension;
+ALTER DATABASE [tempdb]
+MODIFY FILE
+(
+    NAME = N'tempdev2',
+    FILENAME = N'D:\SQLTempDB\tempdb2.ndf',
+    SIZE = 256MB,
+    FILEGROWTH = 256MB
+);
 
-    SET @TempSql =
-        N'ALTER DATABASE [tempdb] MODIFY FILE (NAME = N''' +
-        REPLACE(@TempName,'''','''''') +
-        N''', FILENAME = N''' +
-        REPLACE(@TargetPath,'''','''''') +
-        N''', FILEGROWTH = 256MB);';
+ALTER DATABASE [tempdb]
+MODIFY FILE
+(
+    NAME = N'templog',
+    FILENAME = N'D:\SQLTempDB\templog.ldf',
+    SIZE = 256MB,
+    FILEGROWTH = 256MB
+);
 
-    EXEC sys.sp_executesql @TempSql;
-
-    FETCH NEXT FROM TempFiles INTO @TempName, @TempType;
-END
-
-CLOSE TempFiles;
-DEALLOCATE TempFiles;
+-------------------------------------------------------------------------------
+-- 5. Keep WorkshopLab backup history deterministic
+-------------------------------------------------------------------------------
+EXEC msdb.dbo.sp_delete_database_backuphistory
+    @database_name = N'WorkshopLab';
 
 PRINT '';
 PRINT 'Scenario 01 cleanup metadata applied.';
