@@ -33,7 +33,29 @@ SELECT
     END;
 
 -------------------------------------------------------------------------------
--- 2. Instance configuration
+-- 2. Lab VM resources
+--
+-- These are informational. A different VM size can still be used, but the
+-- workshop baseline values were chosen for 2 vCPU / 8 GiB RAM.
+-------------------------------------------------------------------------------
+INSERT @Results
+SELECT
+    N'Lab VM CPU count',
+    N'2 vCPU (recommended)',
+    CONVERT(nvarchar(100), cpu_count),
+    CASE WHEN cpu_count = 2 THEN 'PASS' ELSE 'INFO' END
+FROM sys.dm_os_sys_info;
+
+INSERT @Results
+SELECT
+    N'Lab VM physical memory',
+    N'~8 GiB (recommended)',
+    CONVERT(nvarchar(100), CAST(physical_memory_kb / 1024.0 / 1024.0 AS decimal(10,1))) + N' GiB',
+    CASE WHEN physical_memory_kb BETWEEN 7340032 AND 9437184 THEN 'PASS' ELSE 'INFO' END
+FROM sys.dm_os_sys_info;
+
+-------------------------------------------------------------------------------
+-- 3. Instance configuration
 -------------------------------------------------------------------------------
 INSERT @Results
 SELECT N'max server memory (MB)', N'6144',
@@ -71,7 +93,7 @@ FROM sys.configurations
 WHERE name = N'optimize for ad hoc workloads';
 
 -------------------------------------------------------------------------------
--- 3. Default paths
+-- 4. Default paths
 -------------------------------------------------------------------------------
 INSERT @Results
 SELECT N'Default Data Path', N'E:\SQLData\',
@@ -92,7 +114,7 @@ SELECT N'Default Backup Path', N'G:\SQLBackup\',
             THEN 'PASS' ELSE 'FAIL' END;
 
 -------------------------------------------------------------------------------
--- 4. WorkshopLab
+-- 5. WorkshopLab
 -------------------------------------------------------------------------------
 INSERT @Results
 SELECT
@@ -165,7 +187,7 @@ FROM sys.master_files
 WHERE database_id = DB_ID(N'WorkshopLab');
 
 -------------------------------------------------------------------------------
--- 5. TempDB
+-- 6. TempDB
 -------------------------------------------------------------------------------
 INSERT @Results
 SELECT
@@ -221,7 +243,7 @@ SELECT
 FROM tempdb.sys.database_files;
 
 -------------------------------------------------------------------------------
--- 6. Output
+-- 7. Output
 -------------------------------------------------------------------------------
 SELECT
     CheckName,
@@ -230,7 +252,11 @@ SELECT
     Result
 FROM @Results
 ORDER BY
-    CASE WHEN Result = 'FAIL' THEN 0 ELSE 1 END,
+    CASE
+        WHEN Result = 'FAIL' THEN 0
+        WHEN Result = 'INFO' THEN 1
+        ELSE 2
+    END,
     CheckName;
 
 IF EXISTS (SELECT 1 FROM @Results WHERE Result = 'FAIL')
