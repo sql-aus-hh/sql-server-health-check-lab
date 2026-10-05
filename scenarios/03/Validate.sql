@@ -176,6 +176,15 @@ SELECT
 FROM sys.master_files
 WHERE database_id = DB_ID(N'HealthCheckApp');
 
+INSERT @Results
+SELECT
+    N'HealthCheckApp rows after successful Full job',
+    N'2',
+    CONVERT(nvarchar(50), COUNT(*)),
+    CASE WHEN COUNT(*) = 2 THEN 'PASS' ELSE 'FAIL' END
+FROM HealthCheckApp.dbo.BusinessTransaction
+WHERE ReferenceNo IN ('HC-AFTER-JOB-01', 'HC-AFTER-JOB-02');
+
 -------------------------------------------------------------------------------
 -- 4. Backup situation
 -------------------------------------------------------------------------------
