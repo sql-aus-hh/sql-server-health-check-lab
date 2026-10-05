@@ -101,6 +101,8 @@ Das entspricht der Kernaussage des Workshops:
 
 ## Voraussetzung
 
-Vorher das [Common Setup](../../setup/) ausfuehren und erfolgreich validieren.
+> **Prerequisite: Common Setup successfully validated.**
+
+Siehe [Common Setup](../../setup/).
 
 > **Warnung:** Ausschliesslich auf einer Test-/Lab-Instanz ausfuehren.
