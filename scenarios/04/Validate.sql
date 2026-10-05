@@ -35,15 +35,24 @@ FROM (VALUES (1)) x(dummy)
 LEFT JOIN sys.databases d
   ON d.name = N'WorkshopTrouble';
 
+DECLARE @QueryStoreState nvarchar(60);
+
+IF DB_ID(N'WorkshopTrouble') IS NOT NULL
+BEGIN
+    EXEC WorkshopTrouble.sys.sp_executesql
+        N'SELECT @State = actual_state_desc FROM sys.database_query_store_options;',
+        N'@State nvarchar(60) OUTPUT',
+        @State = @QueryStoreState OUTPUT;
+END;
+
 INSERT @Results
-SELECT
+VALUES
+(
     N'WorkshopTrouble Query Store',
     N'READ_WRITE',
-    COALESCE(actual_state_desc,N'<missing>'),
-    CASE WHEN actual_state_desc = N'READ_WRITE' THEN 'PASS' ELSE 'FAIL' END
-FROM (VALUES (1)) x(dummy)
-LEFT JOIN sys.database_query_store_options q
-  ON DB_ID(N'WorkshopTrouble') IS NOT NULL;
+    COALESCE(@QueryStoreState,N'<missing>'),
+    CASE WHEN @QueryStoreState = N'READ_WRITE' THEN 'PASS' ELSE 'FAIL' END
+);
 
 -------------------------------------------------------------------------------
 -- 2. Blocking objects
@@ -110,6 +119,55 @@ VALUES
     N'>= 2 plans',
     CONVERT(nvarchar(50),COALESCE(@PlanCount,0)),
     CASE WHEN COALESCE(@PlanCount,0) >= 2 THEN 'PASS' ELSE 'FAIL' END
+);
+
+DECLARE
+    @GoodPlanCount int,
+    @BadPlanCount int,
+    @BadPlanWithMissingIndex int;
+
+SELECT
+    @GoodPlanCount = SUM(CASE
+        WHEN p.query_plan LIKE N'%IX_SalesOrder_Customer_OrderDate%' THEN 1 ELSE 0 END),
+    @BadPlanCount = SUM(CASE
+        WHEN p.query_plan NOT LIKE N'%IX_SalesOrder_Customer_OrderDate%' THEN 1 ELSE 0 END),
+    @BadPlanWithMissingIndex = SUM(CASE
+        WHEN p.query_plan NOT LIKE N'%IX_SalesOrder_Customer_OrderDate%'
+         AND p.query_plan LIKE N'%<MissingIndexes>%' THEN 1 ELSE 0 END)
+FROM WorkshopTrouble.sys.query_store_query_text AS qt
+JOIN WorkshopTrouble.sys.query_store_query AS q
+  ON q.query_text_id = qt.query_text_id
+JOIN WorkshopTrouble.sys.query_store_plan AS p
+  ON p.query_id = q.query_id
+WHERE qt.query_sql_text LIKE N'%FROM dbo.SalesOrder%'
+  AND qt.query_sql_text LIKE N'%CustomerId = @CustomerId%'
+  AND qt.query_sql_text LIKE N'%ORDER BY OrderDate DESC%';
+
+INSERT @Results
+VALUES
+(
+    N'Query Store Good Plan',
+    N'>= 1 plan using IX_SalesOrder_Customer_OrderDate',
+    CONVERT(nvarchar(50),COALESCE(@GoodPlanCount,0)),
+    CASE WHEN COALESCE(@GoodPlanCount,0) >= 1 THEN 'PASS' ELSE 'FAIL' END
+);
+
+INSERT @Results
+VALUES
+(
+    N'Query Store Bad Plan',
+    N'>= 1 plan without supporting index',
+    CONVERT(nvarchar(50),COALESCE(@BadPlanCount,0)),
+    CASE WHEN COALESCE(@BadPlanCount,0) >= 1 THEN 'PASS' ELSE 'FAIL' END
+);
+
+INSERT @Results
+VALUES
+(
+    N'Bad Plan contains Missing Index hint',
+    N'>= 1 MissingIndexes element',
+    CONVERT(nvarchar(50),COALESCE(@BadPlanWithMissingIndex,0)),
+    CASE WHEN COALESCE(@BadPlanWithMissingIndex,0) >= 1 THEN 'PASS' ELSE 'FAIL' END
 );
 
 -------------------------------------------------------------------------------
