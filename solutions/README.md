@@ -8,5 +8,6 @@ Wer ein Szenario selbst analysieren moechte, soll nicht bereits beim Oeffnen des
 
 - [Scenario 01 - Build / Setup Review](01-build-setup-review.md)
 - [Scenario 02 - Take Ownership / Recovery Readiness](02-take-ownership-recovery.md)
+- [Scenario 03 - Health Check / Assess, Don't Assume](03-health-check-assess-dont-assume.md)
 
-Scenario 03 und 04 werden ergaenzt, sobald die jeweiligen Workshop-Labs final rekonstruiert sind.
+Scenario 04 wird ergaenzt, sobald das Troubleshooting-Lab final rekonstruiert ist.
