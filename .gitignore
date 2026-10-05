@@ -1,0 +1,21 @@
+# Local/editor files
+.vscode/
+.idea/
+*.user
+*.suo
+
+# PowerShell
+*.clixml
+
+# SQL Server generated / local artifacts
+*.bak
+*.trn
+*.mdf
+*.ndf
+*.ldf
+*.xel
+
+# Temporary exports
+exports/
+temp/
+tmp/
