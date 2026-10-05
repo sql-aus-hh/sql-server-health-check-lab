@@ -26,8 +26,7 @@ Ziel ist nicht nur, die Slides und Demo-Skripte bereitzustellen. Die Workshop-Sz
 │   ├── 01/                 # Build / Setup Review
 │   ├── 02/                 # Take Ownership / Recovery Readiness
 │   ├── 03/                 # Health Check / Assess, Don't Assume
-│   └── 04/
-│       └── README.md
+│   └── 04/                 # Troubleshooting / Blocking + Execution Plans
 ├── solutions/
 │   └── README.md
 └── slides/
@@ -78,7 +77,7 @@ Die Slides werden nach der Aufbereitung unter [slides](slides/) veröffentlicht.
 
 ## Status
 
-Das Repository befindet sich im Aufbau. Das Common Setup sowie Scenario 01, Scenario 02 und Scenario 03 sind umgesetzt; Scenario 04 wird als Troubleshooting-Lab ergaenzt.
+Das Common Setup und alle vier Workshop-Szenarien sind umgesetzt. Die Lab-Skripte werden weiterhin technisch verfeinert und gegen eine echte SQL-Server-Test-VM end-to-end validiert.
 
 ## Feedback
 
