@@ -81,7 +81,7 @@ Die Slides werden nach der Aufbereitung unter [slides](slides/) veröffentlicht.
 
 ## Status
 
-Das Repository befindet sich aktuell im Aufbau. Die Grundstruktur steht; Common Setup, vier Szenarien, Validierungs- und Cleanup-Skripte werden schrittweise ergänzt.
+Das Repository befindet sich im Aufbau. Das Common Setup und Scenario 01 sind bereits umgesetzt; die weiteren drei Workshop-Szenarien werden schrittweise ergänzt.
 
 ## Feedback
 
