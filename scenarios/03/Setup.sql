@@ -136,6 +136,9 @@ FROM sys.master_files
 WHERE database_id = 1
   AND file_id = 1;
 
+IF @MasterDataPath NOT LIKE N'C:\%'
+    THROW 53005, 'Scenario 03 expects the system database path on C: so the archive-file finding is reproducible.', 1;
+
 SET @CreateHealthDb = N'
 CREATE DATABASE [HealthCheckApp]
 ON PRIMARY
@@ -398,6 +401,19 @@ IF NOT EXISTS
       AND run_status = 1
 )
     THROW 53004, 'Scenario 03 Full backup job did not complete successfully.', 1;
+
+-------------------------------------------------------------------------------
+-- 12. Generate business changes AFTER the successful Full backup job.
+--     These changes are not protected by a subsequent Log backup.
+-------------------------------------------------------------------------------
+USE [HealthCheckApp];
+
+INSERT dbo.BusinessTransaction (ReferenceNo, Amount)
+VALUES
+    ('HC-AFTER-JOB-01', 2750.00),
+    ('HC-AFTER-JOB-02', 3250.00);
+
+USE [master];
 
 PRINT '';
 PRINT 'Scenario 03 setup completed.';
