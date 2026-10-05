@@ -23,10 +23,8 @@ Ziel ist nicht nur, die Slides und Demo-Skripte bereitzustellen. Die Workshop-Sz
 │   ├── 01-Common-Setup.sql
 │   └── 02-Validate-Setup.sql
 ├── scenarios/
-│   ├── 01/
-│   │   └── README.md
-│   ├── 02/
-│   │   └── README.md
+│   ├── 01/                 # Build / Setup Review
+│   ├── 02/                 # Take Ownership / Recovery Readiness
 │   ├── 03/
 │   │   └── README.md
 │   └── 04/
@@ -81,7 +79,7 @@ Die Slides werden nach der Aufbereitung unter [slides](slides/) veröffentlicht.
 
 ## Status
 
-Das Repository befindet sich im Aufbau. Das Common Setup und Scenario 01 sind bereits umgesetzt; die weiteren drei Workshop-Szenarien werden schrittweise ergänzt.
+Das Repository befindet sich im Aufbau. Das Common Setup sowie Scenario 01 und Scenario 02 sind bereits umgesetzt; Scenario 03 und 04 werden schrittweise ergänzt.
 
 ## Feedback
 
