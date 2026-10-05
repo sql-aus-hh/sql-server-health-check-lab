@@ -176,6 +176,15 @@ WHERE database_id = DB_ID(N'WorkshopLab')
 
 INSERT @Results
 SELECT
+    N'WorkshopLab file size - ' + name,
+    N'256 MB',
+    CONVERT(nvarchar(50), size * 8 / 1024) + N' MB',
+    CASE WHEN size = 32768 THEN 'PASS' ELSE 'FAIL' END
+FROM sys.master_files
+WHERE database_id = DB_ID(N'WorkshopLab');
+
+INSERT @Results
+SELECT
     N'WorkshopLab file growth - ' + name,
     N'256 MB',
     CASE
@@ -217,10 +226,29 @@ WHERE type = 1;
 
 INSERT @Results
 SELECT
-    N'TempDB path - ' + name,
-    N'D:\SQLTempDB\...',
-    physical_name,
-    CASE WHEN physical_name LIKE N'D:\SQLTempDB\%' THEN 'PASS' ELSE 'FAIL' END
+    N'TempDB path - tempdev',
+    N'D:\SQLTempDB\tempdb.mdf',
+    COALESCE(MAX(CASE WHEN name = N'tempdev' THEN physical_name END), N'<missing>'),
+    CASE WHEN MAX(CASE WHEN name = N'tempdev' THEN physical_name END) = N'D:\SQLTempDB\tempdb.mdf'
+         THEN 'PASS' ELSE 'FAIL' END
+FROM tempdb.sys.database_files;
+
+INSERT @Results
+SELECT
+    N'TempDB path - tempdev2',
+    N'D:\SQLTempDB\tempdb2.ndf',
+    COALESCE(MAX(CASE WHEN name = N'tempdev2' THEN physical_name END), N'<missing>'),
+    CASE WHEN MAX(CASE WHEN name = N'tempdev2' THEN physical_name END) = N'D:\SQLTempDB\tempdb2.ndf'
+         THEN 'PASS' ELSE 'FAIL' END
+FROM tempdb.sys.database_files;
+
+INSERT @Results
+SELECT
+    N'TempDB path - templog',
+    N'D:\SQLTempDB\templog.ldf',
+    COALESCE(MAX(CASE WHEN name = N'templog' THEN physical_name END), N'<missing>'),
+    CASE WHEN MAX(CASE WHEN name = N'templog' THEN physical_name END) = N'D:\SQLTempDB\templog.ldf'
+         THEN 'PASS' ELSE 'FAIL' END
 FROM tempdb.sys.database_files;
 
 INSERT @Results
