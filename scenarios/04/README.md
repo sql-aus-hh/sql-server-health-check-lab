@@ -119,6 +119,35 @@ Danach das Blocking ueber [04-Blocking-Release.sql](04-Blocking-Release.sql) fre
 
 Danach [06-QueryStore-Compare.sql](06-QueryStore-Compare.sql), um Good und Bad Plan historisch zu vergleichen.
 
+### Optionales Add-on - Query Store Hint ohne Codeaenderung
+
+Im Workshop kam die Frage auf, wie einer bereits bekannten Query ein Hint mitgegeben werden kann, wenn der Anwendungscode nicht direkt geaendert werden soll.
+
+Dafuer verwendet das Add-on **Query Store Hints**:
+
+1. [07-QueryStore-Hint-MAXDOP.sql](07-QueryStore-Hint-MAXDOP.sql)
+   - findet die passende `query_id`
+   - setzt `OPTION(MAXDOP 2)` ueber `sys.sp_query_store_set_hints`
+   - fuehrt denselben Anwendungstext erneut aus
+   - zeigt `sys.query_store_query_hints`
+   - prueft die Query-Store-Hint-Attribute im ShowPlan
+
+2. [08-QueryStore-Hint-Cleanup.sql](08-QueryStore-Hint-Cleanup.sql)
+   - entfernt den Hint wieder ueber `sys.sp_query_store_clear_hints`
+   - verifiziert die Entfernung
+
+Wichtig fuer dieses konkrete Lab: Die Common Baseline verwendet bereits `MAXDOP = 2`. Deshalb demonstriert das Add-on primaer, **wie ein Query Store Hint an eine Query gebunden und im Execution Plan nachgewiesen wird**.
+
+Wer den DOP-Unterschied live deutlicher zeigen moechte, kann den Hint testweise auf `MAXDOP 1` setzen.
+
+Query Store Hints sind ab SQL Server 2022 verfuegbar und erlauben Query-Level-Hints, ohne den urspruenglichen T-SQL-Text der Anwendung zu veraendern.
+
+Microsoft Learn:
+- https://learn.microsoft.com/en-us/sql/relational-databases/performance/query-store-hints
+- https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/sys-sp-query-store-set-hints-transact-sql
+- https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-query-store-query-hints-transact-sql
+- https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/sys-sp-query-store-clear-hints-transact-sql
+
 Die Aufloesung liegt getrennt unter:
 
 [solutions/04-troubleshooting-blocking-plans.md](../../solutions/04-troubleshooting-blocking-plans.md)
