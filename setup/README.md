@@ -4,21 +4,40 @@ Dieser Ordner stellt den **definierten Ausgangszustand** fuer alle Workshop-Szen
 
 Das Common Setup ist bewusst eine **Lab-Baseline**. Die verwendeten Werte sind fuer eine kleine SQL Server Test-VM gedacht und stellen keine allgemeingueltigen Produktions-Best-Practices dar.
 
-## Erwartete Lab-VM
+## Start here
 
-Die Skripte gehen von folgender Umgebung aus:
+### 1. BASE pruefen
 
-- SQL Server 2025 Developer Edition
-- Windows
-- 2 vCPU
-- 8 GiB RAM
-- Systemlaufwerk `C:`
-- Laufwerk `D:` fuer TempDB
-- Laufwerk `E:` fuer Daten
-- Laufwerk `F:` fuer Transaction Logs
-- Laufwerk `G:` fuer Backups
+Vor dem ersten Skript muss folgende Basis vorhanden sein:
 
-Verwendete Verzeichnisse:
+- Windows Test-/Lab-VM
+- SQL Server **2022 oder neuer**
+- Developer Edition
+- SQL Server Agent installiert und gestartet
+- SSMS
+- `sysadmin`-Berechtigung
+- Berechtigung zum Neustart des SQL Server Dienstes
+- vorhandene und fuer SQL Server beschreibbare Laufwerke `D:`, `E:`, `F:` und `G:`
+
+Referenzumgebung:
+
+```text
+SQL Server 2025 Developer
+2 vCPU
+8 GiB RAM
+```
+
+Storage-Rollen:
+
+```text
+C:  Windows / SQL Server binaries / system databases
+D:  TempDB
+E:  User database data
+F:  Transaction logs
+G:  Backups
+```
+
+Die folgenden Unterverzeichnisse muessen nicht vorher angelegt werden. Das Common Setup erzeugt sie:
 
 ```text
 D:\SQLTempDB
@@ -27,12 +46,34 @@ F:\SQLLog
 G:\SQLBackup
 ```
 
-## Reihenfolge
+### 2. Common Setup ausfuehren
 
-1. [01-Common-Setup.sql](01-Common-Setup.sql) ausfuehren.
-2. SQL Server Dienst neu starten.
-3. [02-Validate-Setup.sql](02-Validate-Setup.sql) ausfuehren.
-4. Erst wenn alle Checks `PASS` liefern, ein Workshop-Szenario anwenden.
+[01-Common-Setup.sql](01-Common-Setup.sql)
+
+Das Skript:
+
+- prueft die benoetigten Laufwerke
+- erstellt die Lab-Verzeichnisse
+- setzt die definierte Instanz-Baseline
+- konfiguriert Default Data/Log/Backup Paths
+- erstellt `WorkshopLab`
+- konfiguriert TempDB
+
+### 3. SQL Server Dienst neu starten
+
+Der Neustart ist notwendig, damit insbesondere die TempDB-Dateipfade vollstaendig uebernommen werden.
+
+### 4. Baseline validieren
+
+[02-Validate-Setup.sql](02-Validate-Setup.sql)
+
+Nur wenn alle relevanten Checks `PASS` liefern, mit einem Szenario fortfahren.
+
+### 5. Szenario starten
+
+Danach eines der vier Scenario-READMEs oeffnen. Jedes Szenario setzt nur noch voraus:
+
+> **Prerequisite: Common Setup successfully validated.**
 
 ## Was das Common Setup konfiguriert
 
