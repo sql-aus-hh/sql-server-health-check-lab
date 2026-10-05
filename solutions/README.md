@@ -1,7 +1,12 @@
 # Solutions
 
-Hier werden die Lösungswege zu den vier Workshop-Szenarien getrennt von den eigentlichen Labs dokumentiert.
+Die Loesungen sind bewusst von den eigentlichen Scenario-Ordnern getrennt.
 
-Die Trennung ist beabsichtigt: Wer ein Szenario selbst analysieren möchte, soll nicht bereits im Scenario-Ordner über die Lösung stolpern.
+Wer ein Szenario selbst analysieren moechte, soll nicht bereits beim Oeffnen des Labs ueber die Aufloesung stolpern.
 
-Die Lösungen werden ergänzt, sobald die vier Szenarien final aufbereitet sind.
+## Verfuegbare Loesungen
+
+- [Scenario 01 - Build / Setup Review](01-build-setup-review.md)
+- [Scenario 02 - Take Ownership / Recovery Readiness](02-take-ownership-recovery.md)
+
+Scenario 03 und 04 werden ergaenzt, sobald die jeweiligen Workshop-Labs final rekonstruiert sind.
